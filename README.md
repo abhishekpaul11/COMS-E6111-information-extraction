@@ -7,7 +7,7 @@ An Information Extraction system based on the Google Custom Search API which use
 
 ## Files submitted
 1. [pytorch_pretrained_bert](/pytorch_pretrained_bert) --> Folder that contains helper methods for the SpanBert model
-2. [transcripts](/transcripts) /  --> Folder that contains all the transcript text files for the 2 given test cases using spanbert and gemini
+2. [transcripts](/transcripts) --> Folder that contains all the transcript text files for the 2 given test cases using spanbert and gemini
    1. [spanbert.txt](/transcripts/spanbert.txt) --> Transcript for seed query "bill gates microsoft" over relation "Work_For" with a confidence threshold of 0.7 and k-value of 10 (using the spanbert model)
    2. [gemini.txt](/transcripts/gemini.txt)  --> Transcript for seed query "bill gates microsoft" over relation "Work_For" and k-value of 10 (using the gemini model)
 3. [.gitignore](.gitignore) --> gitignore file for python projects
@@ -76,7 +76,7 @@ python3 main.py [-spanbert|-gemini] <r> <t> <q> <k>
 ```
 
 where,<br>
-`[-spanbert|-gemini]` is one of "-spanbert" or "-gemini" indicating the method you'd like to use for Information Extraction. <br>
+`[-spanbert|-gemini]` is one of "-spanbert" or "-gemini" indicating the method you'd like to use for Information Extraction, <br>
 `<r>` is an integer between 1 and 4, indicating the relation to extract: 1 is for Schools_Attended, 2 is for Work_For,3 is for Live_In, and 4 is for Top_Member_Employees,<br>
 `<t>` is a real number between 0 and 1, indicating the "extraction confidence threshold", which is the minimum extraction confidence that we request for the tuples in the output; t is ignored if we are specifying -gemini, <br>
 `<q>` is a "seed query", which is a list of words in double quotes corresponding to a plausible tuple for the relation to extract (e.g., "bill gates microsoft" for relation Work_For), <br>
@@ -101,7 +101,7 @@ This is the entry point of the application.
 2. After filtering out the non-html results, it sends the url from each result to [scrape_text.py](#scrape_textpy).
 3. It returns the pre-processed and cleaned text extracted from the url.
 4. This extracted text chunk is sent to [spaCy](#has_entities_of_interest) to filter out the sentences that have the entities of our interest based on the relation the user has 
-provided in the CLI prompt. (For example, PERSON and ORGANISATION in case of Work_For)
+provided in the CLI prompt. (For example, PERSON and ORGANISATION in case of Work_For).
 5. If the chosen method is 'spanbert', these valid sentences are then sent to [extract_spanbert.py](#extract_spanbertpy) to get the tuples with the required relation and confidence level above the threshold, the details of which can be
 found in the [next section](#using-spanbert-model).
 6. If the chosen method is 'gemini', these valid sentences are then sent to [extract_gemini.py](#extract_geminipy) to get the tuples with the required relation, the details of which can be
