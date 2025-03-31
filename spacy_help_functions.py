@@ -1,4 +1,3 @@
-import spacy
 from collections import defaultdict
 
 spacy2bert = { 
@@ -19,44 +18,87 @@ bert2spacy = {
         "DATE": "DATE"
         }
 
+def has_entities_of_interest(sentence, subject_type, object_type):
+    entities = get_entities(sentence)
 
-def get_entities(sentence, entities_of_interest):
+    # Check if sentence has both required entity types
+    has_subject = any(e[1] == subject_type for e in entities)
+    has_object = any((isinstance(object_type, str) and e[1] == object_type) or
+                     (isinstance(object_type, set) and e[1] in object_type)
+                     for e in entities)
+
+    return has_subject and has_object
+
+
+def get_entities(sentence):
     return [(e.text, spacy2bert[e.label_]) for e in sentence.ents if e.label_ in spacy2bert]
 
 
-def extract_relations(doc, spanbert, entities_of_interest=None, conf=0.7):
-    num_sentences = len([s for s in doc.sents])
-    print("Total # sentences = {}".format(num_sentences))
+def extract_relations(doc, spanbert, target_relation, subject_type, object_type, entities_of_interest=None, conf=0.7):
     res = defaultdict(int)
-    for sentence in doc.sents:
-        print("\tprocessing sentence: {}".format(sentence))
-        entity_pairs = create_entity_pairs(sentence, entities_of_interest)
-        examples = []
-        for ep in entity_pairs:
-            examples.append({"tokens": ep[0], "subj": ep[1], "obj": ep[2]})
-            examples.append({"tokens": ep[0], "subj": ep[2], "obj": ep[1]})
+    num_rels_of_interest = 0
+    sentence_index = 1
+    sentences_extracted_from = 0
 
-        preds = spanbert.predict(examples)
-        for ex, pred in list(zip(examples, preds)):
-            relation = pred[0]
-            if relation == 'no_relation':
-                continue
-            print("\n\t\t=== Extracted Relation ===")
-            print("\t\tTokens: {}".format(ex['tokens']))
-            subj = ex["subj"][0]
-            obj = ex["obj"][0]
-            confidence = pred[1]
-            print("\t\tRelation: {} (Confidence: {:.3f})\nSubject: {}\tObject: {}".format(relation, confidence, subj, obj))
-            if confidence > conf:
-                if res[(subj, relation, obj)] < confidence:
-                    res[(subj, relation, obj)] = confidence
-                    print("\t\tAdding to set of extracted relations")
-                else:
-                    print("\t\tDuplicate with lower confidence than existing record. Ignoring this.")
-            else:
-                print("\t\tConfidence is lower than threshold confidence. Ignoring this.")
-            print("\t\t==========")
-    return res
+    for sentence in doc.sents:
+        if has_entities_of_interest(sentence, subject_type, object_type):
+            is_extracted = False
+            entity_pairs = create_entity_pairs(sentence, entities_of_interest)
+            examples = []
+
+            for ep in entity_pairs:
+                examples.append({"tokens": ep[0], "subj": ep[1], "obj": ep[2]})
+                examples.append({"tokens": ep[0], "subj": ep[2], "obj": ep[1]})
+
+            if subject_type and object_type:
+                filtered_examples = []
+                for ex in examples:
+                    subj_type = ex['subj'][1]
+                    obj_type = ex['obj'][1]
+                    is_valid = (
+                            subj_type == subject_type and
+                            ((isinstance(object_type, str) and obj_type == object_type) or
+                             (isinstance(object_type, set) and obj_type in object_type))
+                    )
+                    if is_valid:
+                        filtered_examples.append(ex)
+                examples = filtered_examples
+
+            if examples:
+                preds = spanbert.predict(examples)
+                for ex, pred in list(zip(examples, preds)):
+                    relation = pred[0]
+                    if relation != target_relation:
+                        continue
+
+                    is_extracted = True
+                    print("\n\t\t=== Extracted Relation ===")
+                    print("\t\tInput tokens: {}".format(ex['tokens']))
+                    subj = ex["subj"][0]
+                    obj = ex["obj"][0]
+                    confidence = pred[1]
+                    print("\t\tOutput Confidence: {} ; Subject: {} ; Object: {}".format( confidence, subj, obj))
+
+                    if confidence > conf:
+                        if res[(subj, relation, obj)] < confidence:
+                            res[(subj, relation, obj)] = confidence
+                            print("\t\tAdding to set of extracted relations.")
+                        else:
+                            print("\t\tDuplicate with lower confidence than existing record. Ignoring this.")
+                    else:
+                        print("\t\tConfidence is lower than threshold confidence. Ignoring this.")
+                    print("\t\t==========")
+
+                    num_rels_of_interest += 1
+
+            if is_extracted:
+                sentences_extracted_from += 1
+
+        if sentence_index % 5 == 0:
+            print(f'\n\tProcessed {sentence_index} / {len(list(doc.sents))} sentences')
+        sentence_index += 1
+
+    return res, num_rels_of_interest, sentences_extracted_from
 
 
 def create_entity_pairs(sents_doc, entities_of_interest, window_size=40):

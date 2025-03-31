@@ -172,3 +172,5 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+/pretrained_spanbert/pytorch_model.bin
+/pretrained_spanbert/config.json
