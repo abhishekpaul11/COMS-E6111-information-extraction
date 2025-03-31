@@ -14,13 +14,13 @@ An Information Extraction system based on the Google Custom Search API which use
 4. [download_finetuned.sh](download_finetuned.sh) --> shell script to install the pretrained SpanBert model
 5. [extract_gemini.py](extract_gemini.py) --> helper file to perform information extraction using gemini
 6. [extract_spanbert.py](extract_spanbert.py) --> helper file to perform information extraction using spanbert
-4. [google_search.py](google_search.py) --> sub-routine for performing the google search
-5. [LICENSE](LICENSE) --> MIT License
-6. [main.py](main.py) --> the main entry point of the application
-7. [README.md](README.md) --> Project Readme file
-8. [requirements.txt](requirements.txt) --> list of dependencies and external libraries used
-9. [scrape_text.py](scrape_text.py) --> sub-routine for scraping text for information extraction from the urls returned by the google search
-10. [spacy_help_functions.py](spacy_help_functions.py) --> helper file to use spaCy for text processing
+7. [google_search.py](google_search.py) --> sub-routine for performing the google search
+8. [LICENSE](LICENSE) --> MIT License
+9. [main.py](main.py) --> the main entry point of the application
+10. [README.md](README.md) --> Project Readme file
+11. [requirements.txt](requirements.txt) --> list of dependencies and external libraries used
+12. [scrape_text.py](scrape_text.py) --> sub-routine for scraping text for information extraction from the urls returned by the google search
+13. [spacy_help_functions.py](spacy_help_functions.py) --> helper file to use spaCy for text processing
 
 ## Installation and Execution
 
