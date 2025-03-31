@@ -37,3 +37,4 @@ beautifulsoup4~=4.12.3
 google-api-python-client~=2.160.0
 spacy~=3.8.3
 tqdm~=4.67.1
+google-generativeai
