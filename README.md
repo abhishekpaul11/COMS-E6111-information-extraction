@@ -21,6 +21,7 @@ An Information Extraction system based on the Google Custom Search API which use
 11. [requirements.txt](requirements.txt) --> list of dependencies and external libraries used
 12. [scrape_text.py](scrape_text.py) --> sub-routine for scraping text for information extraction from the urls returned by the google search
 13. [spacy_help_functions.py](spacy_help_functions.py) --> helper file to use spaCy for text processing
+14. [spanbert.py](spanbert.py) --> Code related to the SpanBert Model
 
 ## Installation and Execution
 
